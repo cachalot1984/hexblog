@@ -17,12 +17,12 @@ def articles():
     return render_template('articles.html')
 
 @app.route('/tools')
-def tootls():
+def tools():
     return render_template('tools.html')
 
-@app.route('/me')
-def me():
-    return render_template('me.html')
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/article')
 def article():
@@ -35,6 +35,14 @@ def edit():
 @app.route('/login')
 def login():
     return render_template('login.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error.html'), 500
 
 if __name__ == '__main__':
     manager.run()
