@@ -18,12 +18,27 @@
 			<li><a href="{{ url_for('tools') }}">工具</a></li>
 			<li><a href="{{ url_for('about') }}">关于</a></li>
 		</ul>
+
+		<ul class="nav navbar-nav navbar-right">
+			{% if current_user.is_authenticated() %}
+				<li ><a href="{{ url_for('logout') }}">Logout</a></li>
+			{% else %}
+				<li ><a href="{{ url_for('login') }}">Login</a></li>
+			{% endif %}
+		</ul>
 	</div>
 </div>
 {% endblock %}
 
 {% block content %}
 <div class="container">
+	{% for message in get_flashed_messages() %}
+		<div class="alert alert-warning">
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+			{{ message }}
+		</div>
+	{% endfor %}
+
 	{% block page_content %}
 	{% endblock %}
 </div>
