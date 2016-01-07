@@ -12,7 +12,14 @@
 <div class="post">
 	<p class="date">{{ moment(article.time_modified).fromNow() }}</p>
 	<h1 class="post-title">{{ article.title }}</h1>
-	<div class="post_body">{{ article.content }}</div>
+    <div class="post_body"><pre>{{ article.content }}</pre></div>
 </div>
+
+{% if current_user.is_authenticated() %}
+<div class="btn-group">
+    <a href="{{ url_for('edit', opid=article.id) }}" class="btn btn-default" role="button">编辑</a>
+    <a href="{{ url_for('delete', id=article.id) }}" class="btn btn-default" role="button">删除</a>
+</div>
+{% endif %}
 
 {% endblock %}
