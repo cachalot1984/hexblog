@@ -10,8 +10,8 @@
 -->
 
 <div class="post">
-	<p class="date">{{ moment(article.time_modified).fromNow() }}</p>
 	<h1 class="post-title">{{ article.title }}</h1>
+    <p class="date"><h6>{{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}</h6></p>
     <div class="post_body"><pre>{{ article.content }}</pre></div>
 </div>
 

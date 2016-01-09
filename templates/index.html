@@ -11,9 +11,10 @@
 
 {% for article in articles %}
 <div class="post">
-	<p class="date">{{ moment(article.time_modified).fromNow() }}</p>
 	<h1 class="post-title"><a href="{{ url_for('article', id=article.id) }}">{{ article.title }}</a></h1>
+    <p class="date"><h6>{{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}</h6></p>
 	<div class="post_body">{{ article.content }}</div>
+    <hr>
 </div>
 {% endfor %}
 {% endblock %}

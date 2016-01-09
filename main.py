@@ -133,7 +133,6 @@ def about():
 
 
 @app.route('/article/<int:id>')
-@login_required
 def article(id):
     article = Article.query.filter_by(id=id).first()
     article.read_count += 1
