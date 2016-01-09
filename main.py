@@ -19,11 +19,12 @@ from flask_bootstrap import WebCDN
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config['SESSION_TYPE'] = os.environ.get('FLASK_SESSION_TYPE') or 'memcached'
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY') or '123456' # for CSRF protection of WTF
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('FLASK_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+app.config['SESSION_TYPE'] = os.environ.get('TEABLOG_SESSION_TYPE') or 'memcached'
+app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '123456' # for CSRF protection of WTF
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEABLOG_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:foobar@localhost/teablog'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['TEABLOG_ARTICLES_PER_PAGE'] = 10
 
 manager = Manager(app)
 bootstrap = Bootstrap(app)
@@ -113,8 +114,12 @@ class EditForm(Form):
 #----------------------------------------------------------
 @app.route('/')
 def index():
-    articles = Article.query.order_by(Article.time_modified.desc()).all()
-    return render_template('index.html', articles=articles)
+    #articles = Article.query.order_by(Article.time_modified.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    pagination = Article.query.order_by(Article.time_modified.desc()).paginate(
+                    page, per_page=app.config['TEABLOG_ARTICLES_PER_PAGE'], error_out=True)
+    articles = pagination.items
+    return render_template('index.html', articles=articles, pagination=pagination)
 
 
 @app.route('/articles')
