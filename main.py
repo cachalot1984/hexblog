@@ -150,7 +150,7 @@ def article(id):
     article = Article.query.filter_by(id=id).first()
     if article.private and not current_user.is_authenticated():
         flash("Private article")
-        return page_not_found(Exception("Not allowed to read")) 
+        return page_not_found(Exception("Not allowed to read"))
     article.read_count += 1
     return render_template('article.html', article=article)
 
@@ -173,7 +173,6 @@ def edit(opid):
         text = form.text.data
         article.title = text.split('\r')[0]
         article.content = '\r'.join(text.split('\r')[1:])
-        flash(form.private.data)
         article.private = form.private.data
         db.session.add(article)
         try:
