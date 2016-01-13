@@ -12,25 +12,28 @@ from flask.ext.wtf import Form
 from wtforms import PasswordField, SubmitField, BooleanField, TextAreaField, HiddenField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.moment import Moment
 from flask_bootstrap import WebCDN
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__)
+
+# for CSRF protection of WTF
+app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '123456'
 app.config['SESSION_TYPE'] = os.environ.get('TEABLOG_SESSION_TYPE') or 'memcached'
-app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '123456' # for CSRF protection of WTF
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEABLOG_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEABLOG_DATABASE_URI') or \
+                                        'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:foobar@localhost/teablog'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['TEABLOG_ARTICLES_PER_PAGE'] = 10
 
-manager = Manager(app)
-bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
-moment = Moment(app)
+migrate = Migrate(app, db)
 
+bootstrap = Bootstrap(app)
 # use better css and js CDN resource
 app.extensions['bootstrap']['cdns']['jquery']= WebCDN('//apps.bdimg.com/libs/jquery/2.1.4/')
 app.extensions['bootstrap']['cdns']['bootstrap'] = WebCDN('//apps.bdimg.com/libs/bootstrap/3.3.4/')
@@ -48,8 +51,11 @@ def load_user(user_id):
 def make_shell_context():
     return dict(app=app, db=db, bootstrap=bootstrap, Article=Article)
 
+manager = Manager(app)
 manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
 
+moment = Moment(app)
 
 
 # Models
@@ -77,7 +83,6 @@ class Article(db.Model):
     time_created = db.Column(db.DateTime, index=True, default=datetime.now())
     time_modified = db.Column(db.DateTime, index=True, default=datetime.now())
     read_count = db.Column(db.Integer)
-    #tags = db.Column(db.Enum)
 
     def __repr__(self):
         return '<Article "{0}">'.format(self.title)
