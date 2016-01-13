@@ -7,7 +7,7 @@ from datetime import datetime
 from flask import Flask, render_template, flash, redirect, request, url_for
 from flask.ext.script import Manager, Shell
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.login import UserMixin, LoginManager, login_required, login_user, logout_user
+from flask.ext.login import UserMixin, LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.wtf import Form
 from wtforms import PasswordField, SubmitField, BooleanField, TextAreaField, HiddenField
 from wtforms.validators import Required
@@ -35,7 +35,7 @@ migrate = Migrate(app, db)
 
 bootstrap = Bootstrap(app)
 # use better css and js CDN resource
-app.extensions['bootstrap']['cdns']['jquery']= WebCDN('//apps.bdimg.com/libs/jquery/2.1.4/')
+app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//apps.bdimg.com/libs/jquery/2.1.4/')
 app.extensions['bootstrap']['cdns']['bootstrap'] = WebCDN('//apps.bdimg.com/libs/bootstrap/3.3.4/')
 
 login_manager = LoginManager(app)
@@ -83,6 +83,7 @@ class Article(db.Model):
     time_created = db.Column(db.DateTime, index=True, default=datetime.now())
     time_modified = db.Column(db.DateTime, index=True, default=datetime.now())
     read_count = db.Column(db.Integer)
+    private = db.Column(db.Boolean) # non-public, or hidden
 
     def __repr__(self):
         return '<Article "{0}">'.format(self.title)
@@ -100,7 +101,8 @@ class Article(db.Model):
             article = Article(title=title, content=content, content_size=len(content),
                             time_created=forgery_py.date.date(True),
                             time_modified=forgery_py.date.date(True),
-                            read_count=randint(1, 10000))
+                            read_count=randint(1, 10000),
+                            private=False)
             db.session.add(article)
             try:
                 db.session.commit()
@@ -111,6 +113,7 @@ class Article(db.Model):
 class EditForm(Form):
     text = TextAreaField(u'注：第一行为标题', validators=[Required()])
     id = HiddenField('new')
+    private = BooleanField(u'不公开')
     submit = SubmitField(u'完成')
 
 
@@ -145,6 +148,9 @@ def about():
 @app.route('/article/<int:id>')
 def article(id):
     article = Article.query.filter_by(id=id).first()
+    if article.private and not current_user.is_authenticated():
+        flash("Private article")
+        return page_not_found(Exception("Not allowed to read")) 
     article.read_count += 1
     return render_template('article.html', article=article)
 
@@ -167,6 +173,8 @@ def edit(opid):
         text = form.text.data
         article.title = text.split('\r')[0]
         article.content = '\r'.join(text.split('\r')[1:])
+        flash(form.private.data)
+        article.private = form.private.data
         db.session.add(article)
         try:
             db.session.commit()
@@ -185,6 +193,7 @@ def edit(opid):
             article = Article.query.filter_by(id=id).first()
             form.text.data = article.title + '\r' + article.content
             form.id.data = id
+            form.private.data = article.private
             return render_template('edit.html', form=form, new=False)
 
 

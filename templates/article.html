@@ -13,6 +13,9 @@
 	<h1 class="post-title">{{ article.title }}</h1>
     <p class="date"><h6>{{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}</h6></p>
     <div class="post_body"><pre>{{ article.content }}</pre></div>
+    {% if article.private %}
+    <h6>* 不公开</h6>
+    {% endif %}
 </div>
 
 {% if current_user.is_authenticated() %}
