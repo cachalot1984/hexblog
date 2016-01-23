@@ -3,7 +3,159 @@
 {% block title %}Articles list{% endblock %}
 
 {% block page_content %}
+<!--
 <div class="page-header">
 	<h1>文章列表</h1>
 </div>
+-->
+
+<div>
+    <ul class="nav nav-tabs">
+        <li{% if by == 'time_modified' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="time_modified") }}">修改时间</a>
+        </li>
+        <li{% if by == 'time_created' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="time_created") }}">创建时间</a>
+        </li>
+        <li{% if by == 'read_count' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="read_count") }}">点击数</a>
+        </li>
+        {% if current_user.is_authenticated() %}
+        <li{% if by == 'content_size' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="content_size") }}">文章大小</a>
+        </li>
+        {% endif %}
+        <li{% if by == 'category' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="category") }}">分类</a>
+        </li>
+        <li{% if by == 'series' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="series") }}">系列</a>
+        </li>
+        <li{% if by == 'tag' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="tag") }}">Tag</a>
+        </li>
+    </ul>
+</div>
+
+<div>
+{% if by != 'tag' %}
+{% set prev = None %}
+
+{% for article in articles %}
+{% if by == 'time_modified' %}
+    {% if article.time_modified.month != prev %}
+        {% if prev %}
+            </ul>
+        {% endif %}
+
+        <ol class="breadcrumb">
+            <li>{{ article.time_modified.year }}</li>
+            <li>{{ "%02d"|format(article.time_modified.month) }}</li>
+        </ol>
+
+            <ul class="list">
+
+        {% set prev = article.time_modified.month %}
+    {% endif %}
+{% elif by == 'time_created' %}
+    {% if article.time_created.month != prev %}
+        {% if prev %}
+            </ul>
+        {% endif %}
+
+        <ol class="breadcrumb">
+            <li>{{ article.time_created.year }}</li>
+            <li>{{ "%02d"|format(article.time_created.month) }}</li>
+        </ol>
+
+            <ul class="list">
+
+        {% set prev = article.time_created.month %}
+    {% endif %}
+{% elif by == 'category' %}
+    {% if article.category.name != prev %}
+        {% if prev %}
+            </ul>
+        {% endif %}
+
+        <ol class="breadcrumb">
+            <li>{{ article.category.name }}</li>
+        </ol>
+
+            <ul class="list">
+
+        {% set prev = article.category.name %}
+    {% endif %}
+{% elif by == 'series' %}
+    {% if article.series.name != prev %}
+        {% if prev %}
+            </ul>
+        {% endif %}
+
+        <ol class="breadcrumb">
+            <li>{{ article.series.name }}</li>
+        </ol>
+
+            <ul class="list">
+
+        {% set prev = article.series.name %}
+    {% endif %}
+{% endif %}
+
+                <li>
+                    <a href="{{ url_for('article', id=article.id) }}">{{ article.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <sub><small><cite>
+                                <!--[{{ article.category.name }}],-->
+                        {{ moment(article.time_modified).format('LLL') }}, 
+                        {{ moment(article.time_created).format('LLL') }}, 
+                        size {{ article.content_size }},
+                        read {{ article.read_count }}
+                    </cite></small></sub>
+                </li>
+{% endfor %}
+{% if prev %}
+            </ul>
+{% endif %}
+
+{% else %} <!-- if by != tag -->
+{% for tag, arts in tags_cache %}
+    <ol class="breadcrumb">
+        <li>{{ tag }}</li>
+    </ol>
+
+    {% for art in arts %}
+    <ul class="list">
+        <li>
+            <a href="{{ url_for('article', id=art.id) }}">{{ art.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <sub><small><cite>
+                        <!--[{{ art.category.name }}],-->
+                {{ moment(art.time_modified).format('LLL') }}, 
+                {{ moment(art.time_created).format('LLL') }}, 
+                size {{ art.content_size }},
+                read {{ art.read_count }}
+            </cite></small></sub>
+        </li>
+    </ul>
+    {% endfor %}
+{% endfor %}
+{% endif %}
+</div>
+
+{% if by == 'category' or by == 'series' %}
+{% if current_user.is_authenticated() and empty_metas %}
+<div>
+    {% for cat in empty_metas %}
+    <ol class="breadcrumb">
+        <li>
+            {{ cat.name }}
+            <a href="{{ url_for('delete_%s'|format(by), id=cat.id) }}">
+                <span class="glyphicon glyphicon-remove"></span>
+            </a>
+        </li>
+    </ol>
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+
 {% endblock %}

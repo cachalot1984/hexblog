@@ -12,14 +12,17 @@
 <div class="post">
 	<h1 class="post-title">{{ article.title }}</h1>
     <p class="date"><h6>{{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}</h6></p>
+    <p><h6>
+        Category: {{ article.category.name }}
+        {% if article.series %}; Series: {{ article.series.name }}{% endif %}
+        {% if article.tags %}; Tags: {{ article.tags }}{% endif %}
+        {% if article.private %}; *不公开{% endif %}
+    </h6></p>
     <div class="post_body"><pre>{{ article.content }}</pre></div>
-    {% if article.private %}
-    <h6>* 不公开</h6>
-    {% endif %}
 </div>
 
 {% if current_user.is_authenticated() %}
-<div class="btn-group">
+<div class="btn-group pull-right">
     <a href="{{ url_for('edit', opid=article.id) }}" class="btn btn-default" role="button">编辑</a>
     <a href="{{ url_for('delete', id=article.id) }}" class="btn btn-default" role="button">删除</a>
 </div>
