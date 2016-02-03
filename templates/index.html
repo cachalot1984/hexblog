@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% import '_macros.html' as macros %}
 
 {% block title %}Welcome to Tea-blog{% endblock %}
 
@@ -24,7 +23,7 @@
 {% endfor %}
 
 <div class="pagination pull-right">
-    {{ macros.pagination_widget(pagination, 'index') }}
+    {{ macros.widget_pagination(pagination, 'index') }}
 </div>
 {% endblock %}
 

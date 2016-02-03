@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os, MySQLdb
+import os, collections, MySQLdb
 from datetime import datetime
 
 from flask import Flask, render_template, flash, redirect, request, url_for, session
@@ -210,17 +210,18 @@ class EditForm(Form):
     submit = SubmitField(u'完成')
 
 
-def update_tags_cache(reverse=False):
-    tags_cache = {}  # dictionary of item e.g: 'tag': {1, 2, 4}
-    articles = Article.query.order_by(Article.title).all()
+def update_tags_cache(articles=None, reverse=False):
+    tags = {}
+    if not articles:
+        articles = Article.query.order_by(Article.title).all()
     for article in articles:
         if not article.tags:
             continue
         for tag in article.tags.split():
-            tags_cache.setdefault(tag, set())
-            tags_cache[tag].add(article)
-    #print(tags_cache)
-    return sorted(tags_cache.items(), reverse=reverse) # list of item: ('tag', {1, 2, 4})
+            tags.setdefault(tag, set())
+            tags[tag].add(article)
+    #print(tags)
+    return sorted(tags.items(), reverse=reverse) # _list_ of item: ('tag', {1, 2, 4})
 
 
 
@@ -228,16 +229,6 @@ def update_tags_cache(reverse=False):
 #----------------------------------------------------------
 @app.route('/')
 def index():
-    # used for article sorting in page '/articles'
-    session['articles_orders'] = {
-            'time_modified': 0, 
-            'time_created': 0, 
-            'read_count': 0, 
-            'content_size': 0,
-            'category': 0,
-            'series': 0,
-            'tag': 0
-        }
     #articles = Article.query.order_by(Article.time_modified.desc()).all()
     page = request.args.get('page', 1, type=int)
     pagination = Article.query.order_by(Article.time_modified.desc()).paginate(
@@ -248,6 +239,17 @@ def index():
 
 @app.route('/articles')
 def articles():
+    if session.get('articles_orders') is None:
+        # used for article sorting in page '/articles'
+        session['articles_orders'] = {
+                'time_modified': 0, 
+                'time_created': 0, 
+                'read_count': 0, 
+                'content_size': 0,
+                'category': 0,
+                'series': 0,
+                'tag': 0
+            }
     articles = empty_metas = tags_cache = None
     by = request.args.get('by') or 'time_modified'   # make 'time_modified' default
     if by == 'time_modified':
@@ -304,7 +306,12 @@ def article(id):
         flash("Private article")
         return page_not_found(Exception("Not allowed to read"))
     article.read_count += 1
-    return render_template('article.html', article=article)
+
+    articles = Article.query.order_by(Article.time_modified.desc()).all()
+    index = articles.index(article)
+    prev = articles[index - 1] if index >= 1 else None
+    next = articles[index + 1] if index < len(articles) - 1 else None
+    return render_template('article.html', article=article, prev=prev, next=next)
 
 
 # <opid>: 
@@ -476,6 +483,49 @@ def page_not_found(e):
 def internal_server_error(e):
     return render_template('error.html', code=500, e=e), 500
 
+
+# pass needed data to show sidebar, which required for almost every page
+@app.context_processor
+def fill_sidebar_data():
+    sidebar_data = {
+                'archive': collections.OrderedDict(), 
+                'popular': [], 
+                'tags': [], 
+                'share': None
+            }
+
+    # 'archive' ordered by date
+    # data format: {2016: {1: 3}, 2015:{12: 8, 10: 2}, }
+    #               year  mon num
+    articles = Article.query.order_by(Article.time_created.desc()).all()
+    year = month = -1
+    for article in articles:
+        if article.time_created.year != year:
+            year = article.time_created.year
+            sidebar_data['archive'][year] = collections.OrderedDict()
+        if article.time_created.month != month:
+            month = article.time_created.month
+            sidebar_data['archive'][year][month] = 0 
+        sidebar_data['archive'][year][month] += 1
+
+    # 'popular' ordered by read_count, top 8 articles
+    # data format: [article1, article2, ..., article8]
+    articles.sort(key=(lambda a: a.read_count), reverse=True)
+    sidebar_data['popular'] = articles[:8]
+
+    # 'tags' ordered by name, with member article count
+    # data format: [(num_min, num_max), (tag1, num1), (tag2, num2), ...]
+    tags_cache = update_tags_cache(articles=articles)
+    tags_data = [(t[0], len(t[1])) for t in tags_cache]
+    tags_nums = [t[1] for t in tags_data]
+    tags_nums.sort()
+    if len(tags_nums):
+        tags_data.insert(0, (tags_nums[0], tags_nums[-1]))
+    else:
+        tags_data.insert(0, (-1, -1))
+    sidebar_data['tags'] = tags_data
+
+    return dict(sidebar_data=sidebar_data)
 
 
 

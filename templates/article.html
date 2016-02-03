@@ -11,7 +11,12 @@
 
 <div class="post">
 	<h1 class="post-title">{{ article.title }}</h1>
-    <p class="date"><h6>{{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}</h6></p>
+    <p class="date">
+        <h6>
+            {{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}
+            <span class="pull-right">{{ macros.widget_share(url="#") }}</span>
+        </h6>
+    </p>
     <p><h6>
         Category: {{ article.category.name }}
         {% if article.series %}; Series: {{ article.series.name }}{% endif %}
@@ -27,5 +32,24 @@
     <a href="{{ url_for('delete', id=article.id) }}" class="btn btn-default" role="button">删除</a>
 </div>
 {% endif %}
+
+<div>
+<ul class="col-md-12 pager">
+    {% if prev %}
+    <li class="previous"><a href="{{ url_for('article', id=prev.id) }}">&larr; 上一篇</a></li>
+    {% endif %}
+    {% if next %}
+    <li class="next"><a href="{{ url_for('article', id=next.id) }}">下一篇 &rarr;</a></li>
+    {% endif %}
+</ul>
+<ul class="col-md-12 pager" style="margin:0">
+    {% if prev %}
+    <li class="previous pull-left">{{ prev.title }}</li>
+    {% endif %}
+    {% if next %}
+    <li class="previous pull-right">{{ next.title }}</li>
+    {% endif %}
+</ul>
+</div>
 
 {% endblock %}

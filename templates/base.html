@@ -1,4 +1,5 @@
 {% extends 'bootstrap/base.html' %}
+{% import '_macros.html' as macros %}
 
 {% block title %}Tea-blog{% endblock %}
 
@@ -8,7 +9,7 @@
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
+<div class="navbar navbar-inverse" role="navigation" style="padding:0 20px">
 	<div class="navbar-header">
 		<a class="navbar-brand" href="{{ url_for('index') }}">首页</a>
 	</div>
@@ -42,15 +43,52 @@
 
 {% block content %}
 <div class="container">
-	{% for message in get_flashed_messages() %}
-		<div class="alert alert-warning">
-			<button type="button" class="close" data-dismiss="alert">&times;</button>
-			{{ message }}
-		</div>
-	{% endfor %}
+    <div class="blog-header">
+        <h1 class="blog-title"></h1>
+        <p class="lead blog-description"></p>
+    </div>
+    <div class="row">
+        <div class="col-sm-9 blog-main">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
 
-	{% block page_content %}
-	{% endblock %}
+        {% block page_content %}
+        {% endblock %}
+        </div>
+
+        <div class="col-sm-3 blog-sidebar" style="padding: 40px 20px">
+        {% block page_sidebar %}
+            {{ macros.widget_archive(sidebar_data['archive'], 'articles') }}
+            {{ macros.widget_popular(sidebar_data['popular'], 'article') }}
+            {{ macros.widget_tags(sidebar_data['tags'], 'articles') }}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        关注
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    面板内容
+                </div>
+            </div>
+        {% endblock %}
+        </div>
+    </div>
+
+    <footer class="blog-footer">
+        <hr>
+        <p class="text-center">
+            Powered by <a href="http://flask.pocoo.org">Flask</a>, 
+            <a href="http://getbootstrap.com">Bootstrap</a> and <a href="http://python.org">Python</a>.
+        </p>
+        <p class="text-center">
+            <a href="#">Back to Top</a>
+        </p>
+    </footer>
 </div>
 {% endblock %}
 

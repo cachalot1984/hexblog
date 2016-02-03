@@ -32,7 +32,7 @@
             <a href="{{ url_for('articles', by="series") }}">系列</a>
         </li>
         <li{% if by == 'tag' %} class="active"{% endif %}>
-            <a href="{{ url_for('articles', by="tag") }}">Tag</a>
+            <a href="{{ url_for('articles', by="tag") }}">标签</a>
         </li>
     </ul>
 </div>
@@ -48,7 +48,7 @@
             </ul>
         {% endif %}
 
-        <ol class="breadcrumb">
+        <ol class="breadcrumb"><a name="{{ article.time_modified.year }}-{{ article.time_modified.month }}"></a>
             <li>{{ article.time_modified.year }}</li>
             <li>{{ "%02d"|format(article.time_modified.month) }}</li>
         </ol>
@@ -63,7 +63,7 @@
             </ul>
         {% endif %}
 
-        <ol class="breadcrumb">
+        <ol class="breadcrumb"><a name="{{ article.time_created.year }}-{{ article.time_created.month }}"></a>
             <li>{{ article.time_created.year }}</li>
             <li>{{ "%02d"|format(article.time_created.month) }}</li>
         </ol>
@@ -78,7 +78,7 @@
             </ul>
         {% endif %}
 
-        <ol class="breadcrumb">
+        <ol class="breadcrumb"><a name="{{ article.category.name }}"></a>
             <li>{{ article.category.name }}</li>
         </ol>
 
@@ -92,7 +92,7 @@
             </ul>
         {% endif %}
 
-        <ol class="breadcrumb">
+        <ol class="breadcrumb"><a name="{{ article.series.name }}"></a>
             <li>{{ article.series.name }}</li>
         </ol>
 
@@ -119,24 +119,24 @@
 
 {% else %} <!-- if by != tag -->
 {% for tag, arts in tags_cache %}
-    <ol class="breadcrumb">
+    <ol class="breadcrumb"><a name="{{ tag }}"></a>
         <li>{{ tag }}</li>
     </ol>
+        <ul class="list">
 
     {% for art in arts %}
-    <ul class="list">
-        <li>
-            <a href="{{ url_for('article', id=art.id) }}">{{ art.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <sub><small><cite>
-                        <!--[{{ art.category.name }}],-->
-                {{ moment(art.time_modified).format('LLL') }}, 
-                {{ moment(art.time_created).format('LLL') }}, 
-                size {{ art.content_size }},
-                read {{ art.read_count }}
-            </cite></small></sub>
-        </li>
-    </ul>
+            <li>
+                <a href="{{ url_for('article', id=art.id) }}">{{ art.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <sub><small><cite>
+                            <!--[{{ art.category.name }}],-->
+                    {{ moment(art.time_modified).format('LLL') }}, 
+                    {{ moment(art.time_created).format('LLL') }}, 
+                    size {{ art.content_size }},
+                    read {{ art.read_count }}
+                </cite></small></sub>
+            </li>
     {% endfor %}
+        </ul>
 {% endfor %}
 {% endif %}
 </div>

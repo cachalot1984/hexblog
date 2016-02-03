@@ -1,6 +1,6 @@
 <!-- Utility Jinja2 macros -->
 
-{% macro pagination_widget(pagination, endpoint) %}
+{% macro widget_pagination(pagination, endpoint) %}
 {% if pagination.total %}
 <ul class="pagination">
     <li{%if not pagination.has_prev %} class="disabled"{% endif %}>
@@ -29,3 +29,82 @@
 </ul>
 {% endif %}
 {% endmacro %}
+
+{% macro widget_archive(data, endpoint) %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">归档</h3>
+    </div>
+    <div class="panel-body">
+        <ul>
+            {% for year, months in data.items() %}
+            <li>
+                <a href='#'>{{ year }}年</a>
+                {% for month, num in months.items() %}
+                <ul>
+                    <li style="list-style-type: none">
+                        <a href="{{ url_for(endpoint, by='time_created') }}#{{ year }}-{{ month }}">
+                            {{ "%02d"|format(month) }}月 ({{ num }})
+                        </a>
+                    </li>
+                </ul>
+                {% endfor %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro widget_popular(data, endpoint) %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">热门</h3>
+    </div>
+    <div class="panel-body">
+        {% for article in data %}
+        <a href="{{ url_for(endpoint, id=article.id) }}">{{ article.title }}</a> <small>(read {{ article.read_count }})</small><br>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro widget_tags(data, endpoint) %}
+    {% set num_min, num_max = data[0] %}
+    {% set font_min, font_max = (90, 270) %}
+    {% if num_min == num_max or num_min == -1 %}
+    {%      set size_ratio = 0 %}
+    {% else %}
+    {%      set size_delta = ((font_max - font_min) // (num_max - num_min)) %}
+    {% endif %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">标签</h3>
+    </div>
+    <div class="panel-body">
+        {% for tag_data in data[1:] %}
+        <a href="{{ url_for(endpoint, by='tag') }}#{{ tag_data[0] }}">
+            <span style="font-size:{{ (tag_data[1] - num_min) * size_delta + font_min }}%">{{ tag_data[0] }}<span>
+        </a>&nbsp;
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro widget_share(url) %}
+<div class="btn-group">
+   <button type="button" class="btn btn-success dropdown-toggle btn-xs" data-toggle="dropdown">
+     分享到 <span class="caret"></span>
+   </button>
+   <ul class="dropdown-menu" role="menu">
+      <li><a href="#">邮件</a></li>
+      <li><a href="#">微博</a></li>
+      <li><a href="#">微信朋友圈</a></li>
+      <li><a href="#">QQ空间</a></li>
+      <li><a href="#">Facebook</a></li>
+      <li><a href="#">Twitter</a></li>
+   </ul>
+</div>
+{% endmacro %}
+
+
