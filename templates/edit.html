@@ -10,53 +10,49 @@
 </div>
 -->
 
+<!--
 <div>
     {{ wtf.quick_form(form) }}
 </div>
+-->
 
-<!--
 <div>
-<form action="edit" method="post" class="form" role="form">
+<form action="" method="post" class="form" role="form">
+    <div style="display:none;">
+        {{ form.csrf_token() }}
+        {{ form.id() }}
+    </div>
+
     <div class="form-group required">
-        <div>{{ form.title.label }}: {{ form.title(class="css_class") }}</div>
-        <label class="control-label" for="title">标题</label>
-        <input class="form-control" id="title" name="title" required type="text" value="">
+        {{ form.title.label }} {{ form.title(class="form-control") }}
+        {{ macros.field_error(form.title) }}
     </div>
     <div class="form-group required">
-        <label class="control-label" for="content">内容</label>
-        <textarea class="form-control" id="content" name="content" rows="15%" required></textarea>
+        {{ form.content.label }} {{ form.content(class="form-control", rows="15%") }}
+    </div>
+    <div class="row form-group required">
+        <div class="col-md-1">{{ form.category.label }}</div>
+        <div class="col-md-5">{{ form.category(class="form-control") }}</div>
+        <div class="col-md-6">{{ form.category_new(class="form-control") }}</div>
+    </div>
+    <div class="row form-group required">
+        <div class="col-md-1">{{ form.series.label }}</div>
+        <div class="col-md-5">{{ form.series(class="form-control") }}</div>
+        <div class="col-md-6">{{ form.series_new(class="form-control") }}</div>
+    </div>
+    <div class="row form-group required">
+        <div class="col-md-1">{{ form.tags.label }}</div>
+        <div class="col-md-11">{{ form.tags(class="form-control") }}</div>
+    </div>
+    <div class="row form-group required">
+        <div class="col-md-1">{{ form.private.label }}</div>
+        <div class="col-md-11">{{ form.private() }}</div>
     </div>
     <div class="form-group required">
-        <div class="col-md-3 input-group">
-            <label class="control-label" for="category">分类</label>
-            <select class="form-control" id="category" name="category" required>
-                <option value="a">AAA</option>
-                <option value="b">BBB</option>
-            </select>
-            <input type="text" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label>
-                <input id="private" name="private" type="checkbox"> 不公开
-            </label>
-        </div>
+        {{ form.submit(class="btn btn-default pull-right") }}
     </div>
-    <div class="control-group">
-            <label class="control-label" for="select01">Select list</label>
-            <div class="controls">
-              <select id="select01">
-                <option>something</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </select>
-            </div>
-      </div>
-    <input class="btn btn-default" id="submit" name="submit" type="submit" value="完成">
 </form>
 </div>
--->
 
 {% endblock %}
 

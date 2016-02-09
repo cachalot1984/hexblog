@@ -107,4 +107,13 @@
 </div>
 {% endmacro %}
 
+{% macro field_error(field) %}
+    {% if field.errors %}
+        <ul class="errors">
+            {% for error in field.errors %}
+            <li style="color:red">{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
 

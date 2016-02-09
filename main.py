@@ -221,7 +221,7 @@ def update_tags_cache(articles=None, reverse=False):
             tags.setdefault(tag, set())
             tags[tag].add(article)
     #print(tags)
-    return sorted(tags.items(), reverse=reverse) # _list_ of item: ('tag', {1, 2, 4})
+    return sorted(tags.items(), reverse=reverse) # _list_ of item: ('tag', {art1, art2, ...})
 
 
 
