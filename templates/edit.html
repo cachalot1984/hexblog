@@ -24,35 +24,39 @@
     </div>
 
     <div class="form-group required">
-        {{ form.title.label }} {{ form.title(class="form-control") }}
-        {{ macros.field_error(form.title) }}
+        {{ form.title.label }}
+        {{ form.title(class="form-control") }}{{ macros.field_error(form.title) }}
+    </div>
+    <div class="row form-group-sm required">
+        <div class="col-md-1"><p class="text-right">{{ form.category.label }}</p></div>
+        <div class="col-md-5">{{ form.category(class="form-control") }}{{ macros.field_error(form.category) }}</div>
+        <div class="col-md-6">{{ form.category_new(class="form-control") }}{{ macros.field_error(form.category_new) }}</div>
+    </div>
+    <div class="row form-group-sm required">
+        <div class="col-md-1"><p class="text-right">{{ form.series.label }}</p></div>
+        <div class="col-md-5">{{ form.series(class="form-control") }}{{ macros.field_error(form.series) }}</div>
+        <div class="col-md-6">{{ form.series_new(class="form-control") }}{{ macros.field_error(form.series_new) }}</div>
+    </div>
+    <div class="row form-group-sm required">
+        <div class="col-md-1"><p class="text-right">{{ form.tags.label }}</p></div>
+        <div class="col-md-9">{{ form.tags(class="form-control") }}{{ macros.field_error(form.tags) }}</div>
+        <div class="col-md-1"><p class="text-right">{{ form.private.label }}</p></div>
+        <div class="col-md-1">{{ form.private() }}</div>
     </div>
     <div class="form-group required">
-        {{ form.content.label }} {{ form.content(class="form-control", rows="15%") }}
-    </div>
-    <div class="row form-group required">
-        <div class="col-md-1">{{ form.category.label }}</div>
-        <div class="col-md-5">{{ form.category(class="form-control") }}</div>
-        <div class="col-md-6">{{ form.category_new(class="form-control") }}</div>
-    </div>
-    <div class="row form-group required">
-        <div class="col-md-1">{{ form.series.label }}</div>
-        <div class="col-md-5">{{ form.series(class="form-control") }}</div>
-        <div class="col-md-6">{{ form.series_new(class="form-control") }}</div>
-    </div>
-    <div class="row form-group required">
-        <div class="col-md-1">{{ form.tags.label }}</div>
-        <div class="col-md-11">{{ form.tags(class="form-control") }}</div>
-    </div>
-    <div class="row form-group required">
-        <div class="col-md-1">{{ form.private.label }}</div>
-        <div class="col-md-11">{{ form.private() }}</div>
+        {{ form.content.label }}
+        {{ form.content(only_preview=True) }}
+        {{ form.content(only_input=True, class="form-control", rows="15%") }}
     </div>
     <div class="form-group required">
         {{ form.submit(class="btn btn-default pull-right") }}
     </div>
 </form>
 </div>
+{% endblock %}
 
+{% block scripts%}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
 {% endblock %}
 

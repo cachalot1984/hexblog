@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os, collections, MySQLdb
+import os, collections, MySQLdb, bleach
 from datetime import datetime
 
 from flask import Flask, render_template, flash, redirect, request, url_for, session
@@ -16,6 +16,10 @@ from sqlalchemy.exc import IntegrityError
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.moment import Moment
 from flask_bootstrap import WebCDN
+from flask.ext.pagedown import PageDown
+from flask.ext.pagedown.fields import PageDownField
+from markdown import markdown
+
 
 
 app = Flask(__name__)
@@ -59,6 +63,9 @@ manager.add_command('db', MigrateCommand)
 
 moment = Moment(app)
 
+pagedown = PageDown(app)
+
+
 
 # Models
 #----------------------------------------------------------
@@ -82,7 +89,9 @@ class Article(db.Model):
     __tablename__ = 'articles'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(128), unique=True, index=True, nullable=False)
-    content = db.Column(db.UnicodeText)
+    content = db.Column(db.UnicodeText) # plain-text or markdown 
+    content_html = db.Column(db.UnicodeText) # html
+    content_pre = db.Column(db.UnicodeText) # several top lines for preview in 'index' page
     content_size = db.Column(db.Integer)
     time_created = db.Column(db.DateTime, index=True, default=datetime.now())
     time_modified = db.Column(db.DateTime, index=True, default=datetime.now())
@@ -94,6 +103,39 @@ class Article(db.Model):
 
     def __repr__(self):
         return '<Article "{0}">'.format(self.title)
+
+    @staticmethod
+    def on_changed_content(target, value, oldvalue, initiator):
+        markdown_exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', 
+                    ]
+        markdown_exts_configs = {
+                        'markdown.extensions.codehilite':
+                                {
+                                    'css_class': 'highlight',   # default class is 'codehilite'
+                                },
+                    }
+        allowed_tags = [
+                        'a', 'abbr', 'acronym', 'b', 'br', 'blockquote', 'code', 'del', 'em', 
+                        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 
+                        'span', 'small', 'strong', 'sub', 'sup', 'table', 'thead', 'tbody', 
+                        'td', 'th', 'tr', 'ul', '*'
+                    ]
+        allowed_attrs = {
+                        '*': ['class', 'style'],
+                        'a': ['href', 'rel', 'title'],
+                        'img': ['alt', 'src', 'title'], 
+                    }
+        allowed_styles = ['*']
+        html = markdown(value, output_format='html5', 
+                    extensions=markdown_exts, extension_configs=markdown_exts_configs)
+        '''
+        cleaned_html = bleach.clean(html, tags=allowed_tags, attributes=allowed_attrs, 
+                                   styles=allowed_styles, strip=True)
+        target.content_html = bleach.linkify(cleaned_html)
+        '''
+        target.content_html = html
+        lines = target.content_html.split("\n")
+        target.content_pre = "\n".join(lines[:20])
 
     @staticmethod
     def generate_fake(count=100):
@@ -170,7 +212,7 @@ class Series(db.Model):
 class EditForm(Form):
     id = HiddenField('new')
     title = TextField(u'标题', validators=[Required()])
-    content = TextAreaField(u'内容', validators=[Required()])
+    content = PageDownField(u'内容', validators=[Required()])
 
     def new_category_validator(form, field):
         if form.category.data == 'new':
@@ -204,7 +246,7 @@ class EditForm(Form):
     # the series name when create new series
     series_new = StringField('', validators=[new_series_validator])
 
-    tags = StringField('Tags')
+    tags = StringField(u'标签')
 
     private = BooleanField(u'不公开')
     submit = SubmitField(u'完成')
@@ -307,11 +349,16 @@ def article(id):
         return page_not_found(Exception("Not allowed to read"))
     article.read_count += 1
 
+    if article.tags:
+        tags = article.tags.split()
+    else:
+        tags = None
+
     articles = Article.query.order_by(Article.time_modified.desc()).all()
     index = articles.index(article)
     prev = articles[index - 1] if index >= 1 else None
     next = articles[index + 1] if index < len(articles) - 1 else None
-    return render_template('article.html', article=article, prev=prev, next=next)
+    return render_template('article.html', article=article, tags=tags, prev=prev, next=next)
 
 
 # <opid>: 
@@ -488,11 +535,19 @@ def internal_server_error(e):
 @app.context_processor
 def fill_sidebar_data():
     sidebar_data = {
+                'category': collections.OrderedDict(), 
                 'archive': collections.OrderedDict(), 
                 'popular': [], 
                 'tags': [], 
                 'share': None
             }
+
+    # 'category' ordered by category name
+    # data format: {cat1: num1, cat2: num2, ...}
+    #           category  num of articles
+    categories = Category.query.order_by(Category.name).all()
+    for category in categories:
+        sidebar_data['category'][category] = len(category.articles.all())
 
     # 'archive' ordered by date
     # data format: {2016: {1: 3}, 2015:{12: 8, 10: 2}, }
@@ -511,7 +566,7 @@ def fill_sidebar_data():
     # 'popular' ordered by read_count, top 8 articles
     # data format: [article1, article2, ..., article8]
     articles.sort(key=(lambda a: a.read_count), reverse=True)
-    sidebar_data['popular'] = articles[:8]
+    sidebar_data['popular'] = articles[:10]
 
     # 'tags' ordered by name, with member article count
     # data format: [(num_min, num_max), (tag1, num1), (tag2, num2), ...]
@@ -533,6 +588,7 @@ def fill_sidebar_data():
 # main entry
 #----------------------------------------------------------
 if __name__ == '__main__':
+    db.event.listen(Article.content, 'set', Article.on_changed_content)
     db.create_all()
 
     # default category object for any non-categorized articles, its id is 1

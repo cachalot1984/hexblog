@@ -30,10 +30,29 @@
 {% endif %}
 {% endmacro %}
 
+{% macro widget_category(data, endpoint) %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">分类目录</h3>
+    </div>
+    <div class="panel-body">
+        <ul>
+            {% for category, num in data.items() %}
+                <li>
+                    <a href="{{ url_for(endpoint, by='category') }}#{{ category.name }}">
+                        {{ category.name }} ({{ num }})
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
 {% macro widget_archive(data, endpoint) %}
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">归档</h3>
+        <h3 class="panel-title">文章归档</h3>
     </div>
     <div class="panel-body">
         <ul>
@@ -59,11 +78,11 @@
 {% macro widget_popular(data, endpoint) %}
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">热门</h3>
+        <h3 class="panel-title">热门文章</h3>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" style="padding: 10px 5px 10px 10px;">
         {% for article in data %}
-        <a href="{{ url_for(endpoint, id=article.id) }}">{{ article.title }}</a> <small>(read {{ article.read_count }})</small><br>
+        <a href="{{ url_for(endpoint, id=article.id) }}">{{ article.title|truncate(30, True) }}</a> <small>({{ article.read_count }})</small><br>
         {% endfor %}
     </div>
 </div>
@@ -73,15 +92,15 @@
     {% set num_min, num_max = data[0] %}
     {% set font_min, font_max = (90, 270) %}
     {% if num_min == num_max or num_min == -1 %}
-    {%      set size_ratio = 0 %}
+    {%      set size_delta = 0 %}
     {% else %}
     {%      set size_delta = ((font_max - font_min) // (num_max - num_min)) %}
     {% endif %}
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">标签</h3>
+        <h3 class="panel-title">文章标签</h3>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" style="padding: 5px;">
         {% for tag_data in data[1:] %}
         <a href="{{ url_for(endpoint, by='tag') }}#{{ tag_data[0] }}">
             <span style="font-size:{{ (tag_data[1] - num_min) * size_delta + font_min }}%">{{ tag_data[0] }}<span>

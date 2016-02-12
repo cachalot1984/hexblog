@@ -1,17 +1,19 @@
 {% extends 'bootstrap/base.html' %}
 {% import '_macros.html' as macros %}
 
-{% block title %}Tea-blog{% endblock %}
+{% block title %}Teablog{% endblock %}
 
 {% block head %}
-{{ super() }}
+    {{ super() }}
     <link rel='icon' href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teablog.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments-css/friendly.css') }}"> <!-- for markdown code block -->
 {% endblock %}
 
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation" style="padding:0 20px">
 	<div class="navbar-header">
-		<a class="navbar-brand" href="{{ url_for('index') }}">首页</a>
+		<a class="navbar-brand" href="{{ url_for('index') }}">Teablog</a>
 	</div>
 	<div>
 		<ul class="nav navbar-nav">
@@ -60,15 +62,17 @@
         {% endblock %}
         </div>
 
-        <div class="col-sm-3 blog-sidebar" style="padding: 40px 20px">
+        <!--<div class="col-sm-3 blog-sidebar" style="padding: 40px 20px">-->
+        <div class="col-sm-3 blog-sidebar">
         {% block page_sidebar %}
+            {{ macros.widget_category(sidebar_data['category'], 'articles') }}
             {{ macros.widget_archive(sidebar_data['archive'], 'articles') }}
             {{ macros.widget_popular(sidebar_data['popular'], 'article') }}
             {{ macros.widget_tags(sidebar_data['tags'], 'articles') }}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        关注
+                        关注本站
                     </h3>
                 </div>
                 <div class="panel-body">

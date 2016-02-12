@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome to Tea-blog{% endblock %}
+{% block title %}Welcome to Teablog{% endblock %}
 
 {% block page_content %}
 <!--
@@ -11,14 +11,28 @@
 
 {% for article in articles %}
 <div class="post">
-	<h1 class="post-title"><a href="{{ url_for('article', id=article.id) }}">{{ article.title }}</a></h1>
+	<h1 class="post-title text-center"><a href="{{ url_for('article', id=article.id) }}">{{ article.title }}</a></h1>
     <p class="date">
         <h6>
-            [{{ article.category.name }}], {{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}
+            <em>
+                <a href="{{ url_for('articles', by='category') }}#{{ article.category.name }}">
+                    <span class="label label-primary">{{ article.category.name }}</span>
+                </a>
+                {{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}
+            </em>
         </h6>
     </p>
-	<div class="post_body">{{ article.content }}</div>
-    <hr>
+	<div class="post_body">
+        {% if article.content_pre %}
+            {{ article.content_pre|striptags }}
+        {% elif article.content_html %}
+            {{ article.content_html|striptags }}
+        {% else %}
+            {{ article.content }}
+        {% endif %}
+    </div>
+    <p class="text-right"><a href="{{ url_for('article', id=article.id) }}">更多...</a></p>
+    <hr><br>
 </div>
 {% endfor %}
 
