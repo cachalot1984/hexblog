@@ -9,3 +9,8 @@ table, td, th {
     padding: 2px;
 }
 */
+
+/* when mouse over link, no underline */
+a:hover {text-decoration: none;}
+
+
