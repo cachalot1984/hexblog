@@ -40,6 +40,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEABLOG_DATABASE_URI') o
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:foobar@localhost/teablog'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['TEABLOG_ARTICLES_PER_PAGE'] = 10
+# use the first article as the content of the 'about' page
+app.config['TEABLOG_ABOUT_ARTICLE_NUM'] = 1
+# use the second article as the content of the 'markdown help' page, used in editing page
+app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'] = 2
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -421,7 +425,8 @@ def tools():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    article = Article.query.filter_by(id=app.config['TEABLOG_ABOUT_ARTICLE_NUM']).first()
+    return render_template('about.html', article=article)
 
 
 @app.route('/article/<int:id>')
@@ -507,7 +512,8 @@ def edit(opid):
             form.id.data = 'new'
             form.category.data = '1'    # default category
             form.series.data = 'none'    # default series
-            return render_template('edit.html', form=form, new=True)
+            return render_template('edit.html', form=form, new=True, 
+                        help_article_id=app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'])
         else:
             id = int(opid)
             article = Article.query.filter_by(id=id).first_or_404()
@@ -519,7 +525,8 @@ def edit(opid):
             if article.series:
                 form.series.data = str(article.series.id)
             form.tags.data = article.tags
-            return render_template('edit.html', form=form, new=False)
+            return render_template('edit.html', form=form, new=False, 
+                        help_article_id=app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'])
 
 
 @app.route('/delete/<int:id>')

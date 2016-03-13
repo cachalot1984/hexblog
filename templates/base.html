@@ -32,14 +32,6 @@
 			<li><a href="{{ url_for('tools') }}">工具</a></li>
 			<li><a href="{{ url_for('about') }}">关于</a></li>
 		</ul>
-
-		<ul class="nav navbar-nav navbar-right">
-			{% if current_user.is_authenticated() %}
-				<li ><a href="{{ url_for('logout') }}">Logout</a></li>
-			{% else %}
-				<li ><a href="{{ url_for('login') }}">Login</a></li>
-			{% endif %}
-		</ul>
 	</div>
 </div>
 {% endblock %}
@@ -88,7 +80,13 @@
         <hr>
         <p class="text-center">
             Powered by <a href="http://flask.pocoo.org">Flask</a>, 
-            <a href="http://getbootstrap.com">Bootstrap</a> and <a href="http://python.org">Python</a>.
+            <a href="http://getbootstrap.com">Bootstrap</a> and <a href="http://python.org">Python</a>,
+            developed &amp; written by <a href="mailto:blueteaog@163.com" target="_top">bluetea</a>. &nbsp;
+            {% if current_user.is_authenticated() %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
         </p>
         <p class="text-center">
             <a href="#">Back to Top</a>

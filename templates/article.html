@@ -39,8 +39,8 @@
 
 {% if current_user.is_authenticated() %}
 <div class="btn-group pull-right">
-    <a href="{{ url_for('edit', opid=article.id) }}" class="btn btn-default" role="button">编辑</a>
     <a href="{{ url_for('delete', id=article.id) }}" class="btn btn-default" role="button">删除</a>
+    <a href="{{ url_for('edit', opid=article.id) }}" class="btn btn-default" role="button">编辑</a>
 </div>
 {% endif %}
 
