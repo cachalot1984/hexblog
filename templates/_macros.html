@@ -57,18 +57,13 @@
     <div class="panel-body">
         <ul>
             {% for year, months in data.items() %}
-            <li>
-                <a href='#'>{{ year }}年</a>
                 {% for month, num in months.items() %}
-                <ul>
-                    <li style="list-style-type: none">
+                    <li>
                         <a href="{{ url_for(endpoint, by='time_created') }}#{{ year }}-{{ month }}">
-                            {{ "%02d"|format(month) }}月 ({{ num }})
+                            {{ year }}年{{ "%02d"|format(month) }}月 ({{ num }})
                         </a>
                     </li>
-                </ul>
                 {% endfor %}
-            </li>
             {% endfor %}
         </ul>
     </div>

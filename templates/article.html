@@ -47,10 +47,10 @@
 <div>
 <ul class="col-md-12 pager">
     {% if prev %}
-    <li class="previous"><a href="{{ url_for('article', id=prev.id) }}">&larr; 上一篇</a></li>
+    <li class="previous"><a href="{{ url_for('article', id=prev.id) }}">&lt;&lt; 上一篇</a></li>
     {% endif %}
     {% if next %}
-    <li class="next"><a href="{{ url_for('article', id=next.id) }}">下一篇 &rarr;</a></li>
+    <li class="next"><a href="{{ url_for('article', id=next.id) }}">下一篇 &gt;&gt;</a></li>
     {% endif %}
 </ul>
 <ul class="col-md-12 pager" style="margin:0">

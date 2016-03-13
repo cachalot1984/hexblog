@@ -30,8 +30,9 @@
         {% else %}
             {{ article.content }}
         {% endif %}
+        ...
     </div>
-    <p class="text-right"><a href="{{ url_for('article', id=article.id) }}">阅读全文...</a></p>
+    <p class="text-right"><a href="{{ url_for('article', id=article.id) }}">阅读全文&gt;&gt;</a></p>
     <hr><br>
 </div>
 {% endfor %}
