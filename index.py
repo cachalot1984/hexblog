@@ -31,7 +31,7 @@ from sqlalchemy.event import listens_for
 app = Flask(__name__)
 
 # for CSRF protection of WTF
-app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '123456'
+app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '1teablog9'
 app.config['SESSION_TYPE'] = os.environ.get('TEABLOG_SESSION_TYPE') or 'memcached'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -267,7 +267,7 @@ class ImageModelView(sqla.ModelView):
     def list_thumbnail(view, context, model, name):
         if not model.name:
             return ''
-        url = url_for('static', filename='files/ace_create_app.png')
+        url = url_for('static', filename='files/' + model.path)
         url_thumb = url_for('static', filename='files/' + form.thumbgen_filename(model.path))
         return Markup('<a href="%s" target="_blank"><img src="%s" width="100" height="100"></a>' % (url, url_thumb))
 
@@ -280,6 +280,16 @@ class ImageModelView(sqla.ModelView):
     form_extra_fields = {
         'path': form.ImageUploadField('Image', base_path=file_path, thumbnail_size=(100, 100, True))
     }
+
+
+# Flask-Admin view to custimize the original FileAdmin view
+class FileAdminView(FileAdmin):
+    def is_accessible(self):
+        return current_user.is_authenticated()
+
+    def inaccessible_callback(self, name, **kwargs):
+        # redirect to login page if un-authenticated user access the 'files' admin page
+        return redirect(url_for('login', next=request.url))
 
 
 class EditForm(Form):
@@ -673,7 +683,7 @@ except IntegrityError:
 
 # Flask-Admin views
 admin.add_view(ImageModelView(Image, db.session))
-admin.add_view(FileAdmin(file_path, '/static/files/', name='Files'))
+admin.add_view(FileAdminView(file_path, '/static/files/', name='Files'))
 
 
 if __name__ == '__main__':
