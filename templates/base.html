@@ -13,9 +13,15 @@
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation" style="padding:0 20px">
 	<div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
 		<a class="navbar-brand" href="{{ url_for('index') }}">Teablog</a>
 	</div>
-	<div>
+	<div class="collapse navbar-collapse" id="navbar-menu-collapse">
 		<ul class="nav navbar-nav">
 			{% if current_user.is_authenticated() %}
             <li class="dropdown">
