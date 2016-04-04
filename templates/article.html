@@ -13,7 +13,7 @@
 	<h1 class="post-title text-center">{{ article.title }}</h1>
     <p class="date">
         <h6><em>
-            {{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }};
+            {{ article.time_modified.strftime("%Y-%m-%d %H:%M") }}, read {{ article.read_count }};
             Category: <a href="{{ url_for('articles', by='category') }}#{{ article.category.name }}">{{ article.category.name }}</a>
             {% if article.series %}
                 ; Series: <a href="{{ url_for('articles', by='series') }}#{{ article.series.name }}">{{ article.series.name }}</a>

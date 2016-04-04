@@ -29,15 +29,14 @@ from sqlalchemy.event import listens_for
 
 
 app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 # for CSRF protection of WTF
 app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '1teablog9'
 app.config['SESSION_TYPE'] = os.environ.get('TEABLOG_SESSION_TYPE') or 'memcached'
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEABLOG_DATABASE_URI') or \
-                                        'sqlite:///' + os.path.join(basedir, 'db.sqlite')
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:foobar@localhost/teablog'
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    os.environ.get('TEABLOG_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['TEABLOG_ARTICLES_PER_PAGE'] = 10
 # use the first article as the content of the 'about' page
@@ -120,7 +119,7 @@ class Article(db.Model):
     tags = db.Column(db.Unicode(256), index=True, nullable=True) # space separated tag worlds
 
     def __repr__(self):
-        return '<Article "{0}">'.format(self.title)
+        return u'<Article "{0}">'.format(self.title)
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
@@ -184,7 +183,7 @@ class Category(db.Model):
     articles = db.relationship('Article', backref='category', lazy='dynamic')
 
     def __repr__(self):
-        return '<Category "{0}">'.format(self.name)
+        return u'<Category "{0}">'.format(self.name)
 
     @staticmethod
     def generate_fake(count=10):
@@ -209,7 +208,7 @@ class Series(db.Model):
     articles = db.relationship('Article', backref='series', lazy='dynamic')
 
     def __repr__(self):
-        return '<Series "{0}">'.format(self.name)
+        return u'<Series "{0}">'.format(self.name)
 
     @staticmethod
     def generate_fake(count=10):
@@ -236,7 +235,7 @@ class Image(db.Model):
     path = db.Column(db.Unicode(256), nullable=False) # stored in local directory instead
 
     def __repr__(self):
-        return '<File "{0}">'.format(self.name)
+        return u'<File "{0}">'.format(self.name)
 
 
 @listens_for(Image, 'after_delete')
@@ -377,9 +376,13 @@ def articles():
                 'content_size': 0,
                 'category': 0,
                 'series': 0,
-                'tag': 0
+                'tag': 0, 
+                'search': 0
             }
+    if session.get('searched_words') is None:
+        session['searched_words'] = ''
     articles = empty_metas = tags_cache = None
+
     by = request.args.get('by') or 'time_modified'   # make 'time_modified' default
     if by == 'time_modified':
         articles = Article.query.order_by(Article.time_modified.desc()).all()
@@ -407,6 +410,17 @@ def articles():
             empty_metas.sort(key=(lambda s: s.name))
     elif by == 'tag':
         tags_cache = update_tags_cache(reverse=session['articles_orders'][by])
+    elif by == 'search':
+        words = request.args.get('searched_words')
+        if not words or len(words) == 0:
+            words = session['searched_words']
+        if words and len(words) > 0:
+            articles = []
+            all_articles = Article.query.order_by(Article.time_created.desc()).all()
+            for a in all_articles:
+                if a.content and a.content.find(words) >= 0:
+                    articles.append(a)
+        session['searched_words'] = words
     else:
         return page_not_found(Exception("Invalid list condition"))
 
@@ -468,6 +482,7 @@ def edit(opid):
 
         article.title = form.title.data
         article.content = form.content.data
+        article.content_size = len(form.content.data)
         article.private = form.private.data
 
         if form.category.data == 'new':
@@ -672,6 +687,12 @@ def fill_sidebar_data():
 
     return dict(sidebar_data=sidebar_data)
 
+
+@app.route('/search', methods=['POST'])
+def search():
+    words = request.form.get('searched_words')
+
+    return redirect(url_for('articles', by='search', searched_words=words))
 
 
 

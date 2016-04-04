@@ -30,6 +30,24 @@
 {% endif %}
 {% endmacro %}
 
+{% macro widget_search(data, endpoint) %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">文章搜索</h3>
+    </div>
+    <div class="panel-body">
+        <form id="search_form" name="search_form" action="search" method="POST" role="form">
+            <div class="input-group">
+               <input id="searched_words" name="searched_words" type="text" class="form-control">
+               <span class="input-group-btn">
+                  <button class="btn btn-default" type="submit">Go</button>
+               </span>
+            </div>
+        </form>
+    </div>
+</div>
+{% endmacro %}
+
 {% macro widget_category(data, endpoint) %}
 <div class="panel panel-default">
     <div class="panel-heading">

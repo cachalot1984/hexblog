@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-inverse" role="navigation" style="padding:0 20px">
+<div class="navbar navbar-inverse" role="navigation">
 	<div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu-collapse">
             <span class="sr-only">Toggle navigation</span>
@@ -64,6 +64,7 @@
         <!--<div class="col-sm-3 blog-sidebar" style="padding: 40px 20px">-->
         <div class="col-sm-3 blog-sidebar">
         {% block page_sidebar %}
+            {{ macros.widget_search(None, 'articles') }}
             {{ macros.widget_category(sidebar_data['category'], 'articles') }}
             {{ macros.widget_archive(sidebar_data['archive'], 'articles') }}
             {{ macros.widget_popular(sidebar_data['popular'], 'article') }}

@@ -18,7 +18,7 @@
             <a href="{{ url_for('articles', by="time_created") }}">创建时间</a>
         </li>
         <li{% if by == 'read_count' %} class="active"{% endif %}>
-            <a href="{{ url_for('articles', by="read_count") }}">点击数</a>
+            <a href="{{ url_for('articles', by="read_count") }}">点阅数</a>
         </li>
         {% if current_user.is_authenticated() %}
         <li{% if by == 'content_size' %} class="active"{% endif %}>
@@ -33,6 +33,9 @@
         </li>
         <li{% if by == 'tag' %} class="active"{% endif %}>
             <a href="{{ url_for('articles', by="tag") }}">标签</a>
+        </li>
+        <li{% if by == 'search' %} class="active"{% endif %}>
+            <a href="{{ url_for('articles', by="search") }}">搜索结果</a>
         </li>
     </ul>
 </div>
@@ -105,9 +108,9 @@
                 <li>
                     <a href="{{ url_for('article', id=article.id) }}">{{ article.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <sub><small><cite>
-                                <!--[{{ article.category.name }}],-->
-                        {{ moment(article.time_modified).format('LLL') }}, 
-                        {{ moment(article.time_created).format('LLL') }}, 
+                        <!--[{{ article.category.name }}],-->
+                        <!--{{ article.time_modified.strftime("%Y-%m-%d %H:%M") }}, -->
+                        created {{ article.time_created.strftime("%Y-%m-%d %H:%M") }}, 
                         size {{ article.content_size }},
                         read {{ article.read_count }}
                     </cite></small></sub>
@@ -129,8 +132,8 @@
                 <a href="{{ url_for('article', id=art.id) }}">{{ art.title }}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                 <sub><small><cite>
                             <!--[{{ art.category.name }}],-->
-                    {{ moment(art.time_modified).format('LLL') }}, 
-                    {{ moment(art.time_created).format('LLL') }}, 
+                    {{ art.time_modified.strftime("%Y-%m-%d %H:%M") }}, 
+                    {{ art.time_created.strftime("%Y-%m-%d %H:%M") }}, 
                     size {{ art.content_size }},
                     read {{ art.read_count }}
                 </cite></small></sub>
@@ -158,4 +161,6 @@
 {% endif %}
 {% endif %}
 
+<br/>
+<br/>
 {% endblock %}

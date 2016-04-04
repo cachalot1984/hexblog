@@ -18,7 +18,7 @@
                 <a href="{{ url_for('articles', by='category') }}#{{ article.category.name }}">
                     <span class="label label-primary">{{ article.category.name }}</span>
                 </a>
-                {{ moment(article.time_modified).format('LLL') }}, read {{ article.read_count }}
+                {{ article.time_modified.strftime("%Y-%m-%d %H:%M") }}, read {{ article.read_count }}
             </em>
         </h6>
     </p>
