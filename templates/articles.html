@@ -20,7 +20,7 @@
         <li{% if by == 'read_count' %} class="active"{% endif %}>
             <a href="{{ url_for('articles', by="read_count") }}">点阅数</a>
         </li>
-        {% if current_user.is_authenticated() %}
+        {% if current_user.is_authenticated %}
         <li{% if by == 'content_size' %} class="active"{% endif %}>
             <a href="{{ url_for('articles', by="content_size") }}">文章大小</a>
         </li>
@@ -145,7 +145,7 @@
 </div>
 
 {% if by == 'category' or by == 'series' %}
-{% if current_user.is_authenticated() and empty_metas %}
+{% if current_user.is_authenticated and empty_metas %}
 <div>
     {% for cat in empty_metas %}
     <ol class="breadcrumb">

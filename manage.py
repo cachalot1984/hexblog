@@ -261,7 +261,7 @@ class ImageModelView(sqla.ModelView):
     form_excluded_columns = ['path']
 
     def is_accessible(self):
-        return current_user.is_authenticated()
+        return current_user.is_authenticated
 
     def inaccessible_callback(self, name, **kwargs):
         # redirect to login page if un-authenticated user access the 'files' admin page
@@ -288,7 +288,7 @@ class ImageModelView(sqla.ModelView):
 # Flask-Admin view to custimize the original FileAdmin view
 class FileAdminView(FileAdmin):
     def is_accessible(self):
-        return current_user.is_authenticated()
+        return current_user.is_authenticated
 
     def inaccessible_callback(self, name, **kwargs):
         # redirect to login page if un-authenticated user access the 'files' admin page
@@ -396,7 +396,7 @@ def articles():
     elif by == 'category':
         articles = Article.query.order_by(Article.category_id).all()
         articles.sort(key=(lambda c: c.category.name))
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             categories = Category.query.all()
             empty_metas = [c for c in categories if not c.articles.all()]
             empty_metas.sort(key=(lambda c: c.name))
@@ -404,7 +404,7 @@ def articles():
         articles = Article.query.order_by(Article.series_id).all()
         articles = [a for a in articles if a.series ]
         articles.sort(key=(lambda c: c.series.name))
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             all_series = Series.query.all()
             empty_metas = [s for s in all_series if not s.articles.all()]
             empty_metas.sort(key=(lambda s: s.name))
@@ -446,7 +446,7 @@ def about():
 @app.route('/article/<int:id>')
 def article(id):
     article = Article.query.filter_by(id=id).first_or_404()
-    if article.private and not current_user.is_authenticated():
+    if article.private and not current_user.is_authenticated:
         flash("Private article")
         return page_not_found(Exception("Not allowed to read"))
     article.read_count += 1
