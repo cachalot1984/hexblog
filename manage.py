@@ -32,17 +32,17 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # for CSRF protection of WTF
-app.config['SECRET_KEY'] = os.environ.get('TEABLOG_SECRET_KEY') or '1teablog9'
-app.config['SESSION_TYPE'] = os.environ.get('TEABLOG_SESSION_TYPE') or 'memcached'
+app.config['SECRET_KEY'] = os.environ.get('HEXBLOG_SECRET_KEY') or '1hexblog9'
+app.config['SESSION_TYPE'] = os.environ.get('HEXBLOG_SESSION_TYPE') or 'memcached'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = \
-    os.environ.get('TEABLOG_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+    os.environ.get('HEXBLOG_DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['TEABLOG_ARTICLES_PER_PAGE'] = 10
+app.config['HEXBLOG_ARTICLES_PER_PAGE'] = 10
 # use the first article as the content of the 'about' page
-app.config['TEABLOG_ABOUT_ARTICLE_NUM'] = 1
+app.config['HEXBLOG_ABOUT_ARTICLE_NUM'] = 1
 # use the second article as the content of the 'markdown help' page, used in editing page
-app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'] = 2
+app.config['HEXBLOG_MARKDOWN_ARTICLE_NUM'] = 2
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -74,7 +74,7 @@ moment = Moment(app)
 
 pagedown = PageDown(app)
 
-admin = Admin(app, name='Teablog', template_mode='bootstrap3')
+admin = Admin(app, name='Hexblog', template_mode='bootstrap3')
 
 # Create directory for file fields to use
 file_path = os.path.join(basedir, 'static/files')
@@ -360,7 +360,7 @@ def index():
     #articles = Article.query.order_by(Article.time_modified.desc()).all()
     page = request.args.get('page', 1, type=int)
     pagination = Article.query.order_by(Article.time_modified.desc()).paginate(
-                    page, per_page=app.config['TEABLOG_ARTICLES_PER_PAGE'], error_out=True)
+                    page, per_page=app.config['HEXBLOG_ARTICLES_PER_PAGE'], error_out=True)
     articles = pagination.items
     return render_template('index.html', articles=articles, pagination=pagination)
 
@@ -439,7 +439,7 @@ def tools():
 
 @app.route('/about')
 def about():
-    article = Article.query.filter_by(id=app.config['TEABLOG_ABOUT_ARTICLE_NUM']).first()
+    article = Article.query.filter_by(id=app.config['HEXBLOG_ABOUT_ARTICLE_NUM']).first()
     return render_template('about.html', article=article)
 
 
@@ -528,7 +528,7 @@ def edit(opid):
             form.category.data = '1'    # default category
             form.series.data = 'none'    # default series
             return render_template('edit.html', form=form, new=True, 
-                        help_article_id=app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'])
+                        help_article_id=app.config['HEXBLOG_MARKDOWN_ARTICLE_NUM'])
         else:
             id = int(opid)
             article = Article.query.filter_by(id=id).first_or_404()
@@ -541,7 +541,7 @@ def edit(opid):
                 form.series.data = str(article.series.id)
             form.tags.data = article.tags
             return render_template('edit.html', form=form, new=False, 
-                        help_article_id=app.config['TEABLOG_MARKDOWN_ARTICLE_NUM'])
+                        help_article_id=app.config['HEXBLOG_MARKDOWN_ARTICLE_NUM'])
 
 
 @app.route('/delete/<int:id>')
