@@ -6,13 +6,14 @@
 #
 
 
-HEXBLOG_ROOT='/work/hexblog'
+HEXBLOG_ROOT="`dirname $0`"
 HEXBLOG_LOG_FILE="${HEXBLOG_ROOT}/log"
 
 
 if [ `ps -ef | grep python | grep manage.py | wc -l` -lt 1 ]; then
 	cd ${HEXBLOG_ROOT}
 	./manage.py runserver --host 0.0.0.0 --port 80 > ${HEXBLOG_LOG_FILE} 2>&1 &
+	echo 'Hexblog started'
 fi
 
 
