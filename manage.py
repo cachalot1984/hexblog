@@ -359,7 +359,7 @@ def update_tags_cache(articles=None, reverse=False):
 def index():
     #articles = Article.query.order_by(Article.time_modified.desc()).all()
     page = request.args.get('page', 1, type=int)
-    pagination = Article.query.order_by(Article.time_modified.desc()).paginate(
+    pagination = Article.query.order_by(Article.time_created.desc()).paginate(
                     page, per_page=app.config['HEXBLOG_ARTICLES_PER_PAGE'], error_out=True)
     articles = pagination.items
     return render_template('index.html', articles=articles, pagination=pagination)
@@ -414,8 +414,8 @@ def articles():
         words = request.args.get('searched_words')
         if not words or len(words) == 0:
             words = session['searched_words']
+        articles = []
         if words and len(words) > 0:
-            articles = []
             all_articles = Article.query.order_by(Article.time_created.desc()).all()
             for a in all_articles:
                 if a.content and a.content.find(words) >= 0:
@@ -456,10 +456,10 @@ def article(id):
     else:
         tags = None
 
-    articles = Article.query.order_by(Article.time_modified.desc()).all()
+    articles = Article.query.order_by(Article.time_created.desc()).all()
     index = articles.index(article)
-    prev = articles[index - 1] if index >= 1 else None
-    next = articles[index + 1] if index < len(articles) - 1 else None
+    next = articles[index - 1] if index >= 1 else None
+    prev = articles[index + 1] if index < len(articles) - 1 else None
     return render_template('article.html', article=article, tags=tags, prev=prev, next=next)
 
 
