@@ -38,6 +38,7 @@
     <br><br>
 </div>
 
+<div>
 <!-- article sharing: use baidu share lib: http://share.baidu.com/code -->
 <div class="bdsharebuttonbox pull-left">
     <a href="#" class="bds_more" data-cmd="more"></a>
@@ -53,6 +54,8 @@
     <a href="{{ url_for('edit', opid=article.id) }}" class="btn btn-default" role="button" id="article_edit">编辑</a>
 </div>
 {% endif %}
+</div>
+<br/>
 
 <div>
 <ul class="col-md-12 pager">
@@ -72,6 +75,7 @@
     {% endif %}
 </ul>
 </div>
+<br/><br/>
 {% endblock %}
 
 {% block scripts %}
