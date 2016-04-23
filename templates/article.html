@@ -24,7 +24,7 @@
                 {% endfor %}
             {% endif %}
             {% if article.private %}; *不公开{% endif %}
-            <span class="pull-right">{{ macros.widget_share(url="#") }}</span>
+            <!--<span class="pull-right">{{ macros.widget_share(url="#") }}</span>-->
         </em></h6>
         <br/>
     </p>
@@ -35,8 +35,18 @@
             {{ article.content }}
         {% endif %}
     </div>
+    <br><br>
 </div>
 
+<!-- article sharing: use baidu share lib: http://share.baidu.com/code -->
+<div class="bdsharebuttonbox pull-left">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_qzone" data-cmd="qzone"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina"></a>
+    <a href="#" class="bds_tqq" data-cmd="tqq"></a>
+    <a href="#" class="bds_renren" data-cmd="renren"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin"></a>
+</div>
 {% if current_user.is_authenticated %}
 <div class="btn-group pull-right">
     <a href="{{ url_for('delete', id=article.id) }}" class="btn btn-default" role="button" id="article_del">删除</a>
@@ -62,5 +72,32 @@
     {% endif %}
 </ul>
 </div>
-
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <!-- article sharing: use baidu share lib: http://share.baidu.com/code -->
+    <script>
+        window._bd_share_config={
+            "common":{
+                "bdSnsKey":{},
+                "bdText":"",
+                "bdMini":"2",
+                "bdPic":"",
+                "bdStyle":"0",
+                "bdSize":"16"},
+            "share":{},
+            "image":{
+                "viewList":["qzone","tsina","tqq","renren","weixin"],
+                "viewText":"分享到：",
+                "viewSize":"16"},
+            "selectShare":{
+                "bdContainerClass":null,
+                "bdSelectMiniList":["qzone","tsina","tqq","renren","weixin"]
+            }};
+
+        with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+{% endblock %}
+
